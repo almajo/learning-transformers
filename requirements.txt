@@ -3,3 +3,6 @@ scikit-learn
 skorch
 numpy
 pandas
+pytest
+matplotlib
+seaborn

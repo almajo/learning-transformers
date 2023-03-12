@@ -15,10 +15,9 @@ class PositionalEncoding(nn.Module):
         with torch.no_grad():
             num_inputs, embedding_dim = X.shape[1], X.shape[-1]
             positions = torch.arange(num_inputs).unsqueeze(-1)
-            dimensions = torch.arange(embedding_dim)
+            dimensions = torch.arange(embedding_dim, dtype=torch.float64)
 
-            sub = 10_000 ^ (2 * dimensions // embedding_dim)
-            pe = positions / sub
+            pe = positions / torch.pow(10_000, 2 * dimensions/ embedding_dim)
 
             full_pe = torch.zeros(num_inputs, embedding_dim)
             full_pe[:, 0::2] = torch.sin(pe[:, 0::2])
@@ -26,3 +25,4 @@ class PositionalEncoding(nn.Module):
 
         # broadcast over batch
         return X + full_pe.unsqueeze(0)
+    

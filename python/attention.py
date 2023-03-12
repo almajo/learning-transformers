@@ -11,9 +11,13 @@ class SelfAttention(nn.Module):
         self.key = nn.Linear(d_model, attn_dim)
         self.value = nn.Linear(d_model, attn_dim)
 
-    def forward(self, X):
+    def forward(self, X, query_value=None):
         # X = batch x timestamps x embeding_dim
-        query = self.query(X)
+        if query_value is None:
+            query = self.query(X)
+        else:
+            # In the Decoder, we query with the previous decoder-layer output
+            query = self.query(query_value)
         key = self.key(X)
         value = self.value(X)
 
@@ -39,8 +43,8 @@ class MultiHeadAttentionLayer(nn.Module):
         self.heads = [SelfAttention(d_model, self.attn_dim) for _ in range(num_heads)]
         self.linear = nn.Linear(d_model, d_model)
 
-    def forward(self, X):
+    def forward(self, X, query_value=None):
         head_result = torch.concat(
-            [self.heads[i](X) for i in range(self.num_heads)], axis=-1
+            [self.heads[i](X, query_value) for i in range(self.num_heads)], axis=-1
         )
         return self.linear(head_result)
